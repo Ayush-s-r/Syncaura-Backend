@@ -14,7 +14,7 @@ export const auth = (req, res, next) => {
     if (!token) return res.status(401).json({ message: 'Unauthorized' });
 
     const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-    req.user = { id: payload.sub, roles: payload.roles };
+    req.user = { id: payload.sub, role: payload.role };
     next();
   } catch (err) {
     return res.status(401).json({ message: 'Invalid or expired token' });

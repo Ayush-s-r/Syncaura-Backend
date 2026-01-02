@@ -7,6 +7,7 @@ import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import taskRoutes from './routes/task.routes.js';
 import {errorMiddleware} from './middlewares/errorHandler.js';
+import channelRoutes from './routes/channelRoutes.js';
 
 dotenv.config();
 
@@ -27,7 +28,7 @@ app.use(cookieParser());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
-
+app.use('/api/channels', channelRoutes);
 // Health check route
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 

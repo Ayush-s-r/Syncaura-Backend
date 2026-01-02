@@ -3,9 +3,10 @@ import pkg from 'uuid';
 const { v4: uuidv4 } = pkg;
 
 
+
 export const generateAccessToken = (user) => {
   return jwt.sign(
-    { roles: user.roles },
+    { role: user.role },
     process.env.JWT_ACCESS_SECRET,
     { expiresIn: process.env.JWT_ACCESS_EXPIRES, subject: String(user._id) }
   );
