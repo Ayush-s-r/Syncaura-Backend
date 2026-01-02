@@ -1,8 +1,13 @@
-export const permit = (...allowed) => {
+export const permit = (...allowedRoles) => {
   return (req, res, next) => {
-    const roles = req.user?.roles || [];
-    const ok = roles.some(r => allowed.includes(r));
-    if (!ok) return res.status(403).json({ message: 'Forbidden' });
+    if (!req.user || !req.user.role) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
     next();
   };
 };

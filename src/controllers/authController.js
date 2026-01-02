@@ -1,10 +1,11 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
-import User, { rolesEnum } from '../models/User.js';
+import User from '../models/User.js';
 import { generateAccessToken, generateRefreshToken, assignRefreshId } from '../utils/generateTokens.js';
 import { sendResetEmail } from '../utils/email.js';
 import { generateOtp } from '../utils/otp.js';
+import ROLES from "../config/roles.js";
 
 const handleValidation = (req) => {
   const errors = validationResult(req);
@@ -19,17 +20,23 @@ const handleValidation = (req) => {
 export const register = async (req, res, next) => {
   try {
     handleValidation(req);
-    const { name, email, password, roles } = req.body;
+    const { name, email, password, role } = req.body;
 
     const existing = await User.findOne({ email });
     if (existing) return res.status(409).json({ message: 'Email already registered' });
 
     const passwordHash = await User.hashPassword(password);
-    const cleanRoles = Array.isArray(roles) && roles.length ? roles.filter(r => rolesEnum.includes(r)) : ['user'];
+  const allowedRoles = Object.values(ROLES);
+const finalRole = allowedRoles.includes(role) ? role : ROLES.USER;
 
-    const user = await User.create({
-      name, email, passwordHash, roles: cleanRoles
-    });
+const user = await User.create({
+  name,
+  email,
+  passwordHash,
+  role: finalRole
+});
+
+    
 
     const rid = assignRefreshId(user);
     await user.save();
@@ -37,7 +44,7 @@ export const register = async (req, res, next) => {
     const refreshToken = generateRefreshToken(user, rid);
 
     res.status(201).json({
-      user: { id: user._id, name: user.name, email: user.email, roles: user.roles },
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
       tokens: { accessToken, refreshToken }
     });
   } catch (err) { next(err); }
@@ -60,7 +67,7 @@ export const login = async (req, res, next) => {
     const refreshToken = generateRefreshToken(user, rid);
 
     res.json({
-      user: { id: user._id, name: user.name, email: user.email, roles: user.roles },
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
       tokens: { accessToken, refreshToken }
     });
   } catch (err) { next(err); }

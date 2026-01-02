@@ -1,13 +1,19 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-const rolesEnum = ['user', 'admin', 'manager'];
+const rolesEnum = ['user', 'admin', 'co-admin'];
 
 const userSchema = new mongoose.Schema({
   name: { type: String, trim: true, required: true, minlength: 2, maxlength: 80 },
   email: { type: String, unique: true, required: true, lowercase: true, trim: true },
   passwordHash: { type: String, required: true },
-  roles: { type: [String], enum: rolesEnum, default: ['user'] },
+  
+  role: {
+  type: String,
+  enum:rolesEnum,
+  default: "user"
+},
+
   isActive: { type: Boolean, default: true },
   // Password reset
   resetTokenHash: { type: String, default: null },
